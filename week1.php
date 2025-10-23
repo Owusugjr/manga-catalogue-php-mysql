@@ -22,7 +22,42 @@
       <?php endwhile;?>
     </table>
 
+<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Add manga</button>
 
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">New message</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form action = "templates/add-game.php">
+          <div class="mb-3">
+            <label for="title" class="col-form-label">Name of Manga:</label>
+            <input type="text" class="form-control" id="title" - name = "title">
+          </div>
+          <div class="mb-3">
+            <label for="description" class="col-form-label">Manga Description:</label>
+            <textarea class="form-control" id="description" - name = "description"></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="release_year" class="col-form-label">Manga release year:</label>
+            <input type="date" class="form-control" id="release_year" - name = "release_year">
+          </div>
+          <div class="mb-3">
+            <label for="google_rating" class="col-form-label">Manga google rating:</label>
+            <input type="number" class="form-control" id="google_rating" - name = "google_rating">
+          </div>
+          <div class="modal-footer">
+             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+             <button type="submit" class="btn btn-primary">Add Manga</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 
 <?php include ('templates/footer.php'); ?>
 
