@@ -18,6 +18,7 @@
         <tr>
           <td><a href= "templates/game-details.php?id=<?=$a_row['id']?>"><?=$a_row['title']?></a></td>
           <td><?=$a_row['google_rating']?></a></td>
+          <td><a class="btn btn-outline-danger btn-small" href="templates/delete-game.php?id=<?=$a_row['id']?>" role="button">Delete</a></td>
          </tr>
       <?php endwhile;?>
     </table>
