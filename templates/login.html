@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
+      rel="stylesheet">
+  </head>
+  <body class="bg-light">
+
+    {{ include('navigation.html') }}
+
+    <div class="container my-4 pt-5" style="max-width: 600px;">
+
+      <div class="card mb-4">
+        <div class="card-body">
+          <h1 class="h4 mb-0">Login</h1>
+        </div>
+      </div>
+
+      {% if errors %}
+        <div class="alert alert-danger">
+          <ul class="mb-0">
+            {% for e in errors %}
+              <li>{{ e }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
+      <form method="post" action="login.php" class="row g-3">
+
+        <div class="col-12">
+          <label class="form-label">Username</label>
+          <input
+            type="text"
+            name="username"
+            class="form-control"
+            value="{{ username }}"
+            required>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label">Password</label>
+          <input
+            type="password"
+            name="password"
+            class="form-control"
+            required>
+        </div>
+
+        <!-- ⭐ CAPTCHA SECTION (This is what was missing) -->
+        <div class="col-12">
+          <label class="form-label">CAPTCHA</label>
+          <div class="input-group">
+            <span class="input-group-text">
+              {{ captcha_a }} + {{ captcha_b }} =
+            </span>
+            <input
+              type="text"
+              name="captcha"
+              class="form-control"
+              required>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary w-100">
+            Login
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

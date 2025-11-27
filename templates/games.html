@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>All Manga</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
+      rel="stylesheet">
+  </head>
+  <body class="bg-light">
+
+    {{ include('navigation.html') }}
+
+    <div class="container my-4 pt-5">
+      <h1 class="mb-3">All manga</h1>
+
+      <p class="text-muted">{{ num_rows }} record(s) were returned…</p>
+
+      <table class="table table-striped table-bordered">
+        <thead class="table-dark">
+          <tr>
+            <th>Title</th>
+            <th>Year</th>
+            <th>Rating</th>
+            {% if current_user %}
+              <th>Actions</th>
+            {% endif %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in results %}
+            <tr>
+              <td>
+                <a href="manga-details.php?id={{ item.id }}">
+                  {{ item.title }}
+                </a>
+              </td>
+              <td>{{ item.release_year }}</td>
+              <td>{{ item.rating }}</td>
+
+              {% if current_user %}
+<td class="d-flex gap-2">
+  <a href="manga-edit.php?id={{ item.id }}" class="btn btn-sm btn-warning">
+    Edit
+  </a>
+
+  <a href="manga-delete.php?id={{ item.id }}" class="btn btn-sm btn-danger"
+     onclick="return confirm('Are you sure you want to delete this manga?');">
+    Delete
+  </a>
+</td>
+
+              {% endif %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

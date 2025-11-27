@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Manga DB – Search</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
+      rel="stylesheet">
+  </head>
+  <body class="bg-light">
+
+    {{ include('navigation.html') }}
+
+    <div class="container my-4">
+      <h1 class="mb-3">Search manga</h1>
+
+      <p class="text-muted">
+        Use any combination of title, genre and year. Leave fields blank to ignore them.
+      </p>
+
+      <form action="search.php" method="post" class="row g-3 mb-4">
+        {# TITLE WITH AJAX AUTOCOMPLETE #}
+        <div class="col-md-4 position-relative">
+          <label for="title" class="form-label">Title contains</label>
+          <input
+            type="text"
+            name="title"
+            id="title"
+            class="form-control"
+            value="{{ title }}">
+
+          {# Ajax suggestions appear here #}
+          <div id="titleSuggestions"
+               class="list-group position-absolute w-100"
+               style="z-index: 1000;"></div>
+        </div>
+
+        <div class="col-md-4">
+          <label for="genre" class="form-label">Genre contains</label>
+          <input
+            type="text"
+            name="genre"
+            id="genre"
+            class="form-control"
+            value="{{ genre }}">
+        </div>
+
+        <div class="col-md-2">
+          <label for="year" class="form-label">Year equals</label>
+          <input
+            type="text"
+            name="year"
+            id="year"
+            class="form-control"
+            value="{{ year }}">
+        </div>
+
+        <div class="col-md-2 d-flex align-items-end">
+          <button type="submit" class="btn btn-primary w-100">
+            Search
+          </button>
+        </div>
+      </form>
+
+      {% if results is not null %}
+        <h2 class="h5 mb-3">Results</h2>
+        <p class="text-muted">
+          {{ num_rows }} record(s) found.
+        </p>
+
+        {% if num_rows > 0 %}
+          <table class="table table-striped table-bordered">
+            <thead class="table-dark">
+              <tr>
+                <th>Title</th>
+                <th>Genre</th>
+                <th>Year</th>
+                <th>Google rating</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in results %}
+                <tr>
+                  <td>
+                    <a href="manga-details.php?id={{ item.id }}">
+                      {{ item.title }}
+                    </a>
+                  </td>
+                  <td>{{ item.genre }}</td>
+                  <td>{{ item.release_year }}</td>
+                  <td>{{ item.google_rating }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p>No manga matched your search.</p>
+        {% endif %}
+      {% endif %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+
+    {# AJAX AUTOCOMPLETE SCRIPT #}
+    <script>
+      const titleInput = document.getElementById('title');
+      const suggestionsBox = document.getElementById('titleSuggestions');
+
+      if (titleInput && suggestionsBox) {
+        titleInput.addEventListener('input', function () {
+          const q = this.value.trim();
+
+          // Clear if too short
+          if (q.length < 2) {
+            suggestionsBox.innerHTML = '';
+            return;
+          }
+
+          fetch('ajax-title.php?q=' + encodeURIComponent(q))
+            .then(response => response.json())
+            .then(data => {
+              suggestionsBox.innerHTML = '';
+
+              data.forEach(function (title) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'list-group-item list-group-item-action';
+                btn.textContent = title;
+
+                btn.addEventListener('click', function () {
+                  titleInput.value = title;
+                  suggestionsBox.innerHTML = '';
+                });
+
+                suggestionsBox.appendChild(btn);
+              });
+            })
+            .catch(err => {
+              console.error('Ajax error:', err);
+            });
+        });
+      }
+    </script>
+  </body>
+</html>
