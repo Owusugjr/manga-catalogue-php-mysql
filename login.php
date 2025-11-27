@@ -47,23 +47,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // -----------------------------
     // ONLY PROCESS LOGIN IF NO ERRORS
+    // OWASP: Use prepared statements to prevent SQL injection
     // -----------------------------
     if (empty($errors)) {
 
-        $safe_username = mysqli_real_escape_string($mysqli, $username);
+        // Use prepared statements instead of string concatenation
+        $stmt = $mysqli->prepare("SELECT id, username, password_hash FROM users WHERE username = ? LIMIT 1");
+        if (!$stmt) {
+            $errors[] = "Database error. Please try again later.";
+        } else {
+            $stmt->bind_param("s", $username);
+            $stmt->execute();
+            $result = $stmt->get_result();
 
-        $sql = "SELECT id, username, password_hash
-                FROM users
-                WHERE username = '{$safe_username}'
-                LIMIT 1";
+            if ($result && $result->num_rows === 1) {
 
-        $result = mysqli_query($mysqli, $sql);
+                $user = $result->fetch_assoc();
 
-        if ($result && mysqli_num_rows($result) === 1) {
-
-            $user = mysqli_fetch_assoc($result);
-
-            if (password_verify($password, $user['password_hash'])) {
+                if (password_verify($password, $user['password_hash'])) {
 
                 // Reset CAPTCHA after successful login
                 unset($_SESSION['login_captcha_a'], $_SESSION['login_captcha_b']);
@@ -80,6 +81,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         } else {
             $errors[] = "Invalid username or password.";
+        }
+        
+        if (isset($stmt)) {
+            $stmt->close();
         }
     }
 }

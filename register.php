@@ -52,34 +52,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
+        // OWASP: Use prepared statements to prevent SQL injection
         // Check if username already exists
-        $safe_username = mysqli_real_escape_string($mysqli, $username);
-        $check_sql     = "SELECT id FROM users WHERE username = '{$safe_username}'";
-        $check_result  = mysqli_query($mysqli, $check_sql);
-
-        if ($check_result && mysqli_num_rows($check_result) > 0) {
-            $errors[] = "This username is already taken.";
+        $stmt_check = $mysqli->prepare("SELECT id FROM users WHERE username = ? LIMIT 1");
+        if (!$stmt_check) {
+            $errors[] = "Database error. Please try again later.";
         } else {
-            // PASSWORD HASHING (from the lecture)
-            // 
-            $password_hash = password_hash($password, PASSWORD_DEFAULT);
+            $stmt_check->bind_param("s", $username);
+            $stmt_check->execute();
+            $check_result = $stmt_check->get_result();
 
-            $insert_sql = "
-                INSERT INTO users (username, password_hash)
-                VALUES ('{$safe_username}', '{$password_hash}')
-            ";
-
-            if (mysqli_query($mysqli, $insert_sql)) {
-                $success  = true;
-                $username = '';
-
-                // Regenerate CAPTCHA for the next registration
-                $_SESSION['captcha_a'] = rand(1, 9);
-                $_SESSION['captcha_b'] = rand(1, 9);
-                $captcha_a = $_SESSION['captcha_a'];
-                $captcha_b = $_SESSION['captcha_b'];
+            if ($check_result && $check_result->num_rows > 0) {
+                $errors[] = "This username is already taken.";
+                $stmt_check->close();
             } else {
-                $errors[] = "There was a problem saving your account.";
+                $stmt_check->close();
+                
+                // PASSWORD HASHING (from the lecture)
+                $password_hash = password_hash($password, PASSWORD_DEFAULT);
+
+                // Use prepared statement for INSERT
+                $stmt_insert = $mysqli->prepare("INSERT INTO users (username, password_hash) VALUES (?, ?)");
+                if (!$stmt_insert) {
+                    $errors[] = "There was a problem saving your account.";
+                } else {
+                    $stmt_insert->bind_param("ss", $username, $password_hash);
+                    
+                    if ($stmt_insert->execute()) {
+                        $success  = true;
+                        $username = '';
+
+                        // Regenerate CAPTCHA for the next registration
+                        $_SESSION['captcha_a'] = rand(1, 9);
+                        $_SESSION['captcha_b'] = rand(1, 9);
+                        $captcha_a = $_SESSION['captcha_a'];
+                        $captcha_b = $_SESSION['captcha_b'];
+                    } else {
+                        $errors[] = "There was a problem saving your account.";
+                    }
+                    $stmt_insert->close();
+                }
             }
         }
     }
