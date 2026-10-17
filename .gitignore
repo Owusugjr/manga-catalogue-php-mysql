@@ -1,0 +1,16 @@
+# Local database credentials
+.env
+
+# Dependencies
+vendor/
+
+# Logs
+*.log
+
+# OS and editor junk
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+.vscode/
